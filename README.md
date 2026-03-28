@@ -1,7 +1,7 @@
 # Author: Jason Strouphauer
 # Build Instructions:
 
-1.) In command line terminal run the following commands:
+In command line terminal run the following commands:
 
   Clone repository:
   ~ % git clone https://github.com/jdstroup10/CS3339-Homework-2
@@ -14,6 +14,8 @@
 
   Run the executable with two positive floating-point numbers (Scientific notation or decimal):
   ./fp_overflow_checker.out 1e+08 1.0
+
+
         
 
 # Bug Report: No known bugs.
