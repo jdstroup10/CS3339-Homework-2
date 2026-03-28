@@ -14,30 +14,46 @@
 //#include <bit>
 #include <cstring>
 #include <iomanip>
+#include <string> //for stof (string to float)
 using namespace std;
 
 
-/*class bitsetFP {
+class bitsetFP {
 private:
-    uint32_t bits:
+    uint32_t bits;
 
 public:
     bitsetFP(float f) {
         memcpy(&bits, &f, sizeof(float));
     }
-}; */
 
-// 1 bit sign ---- 8 bit exponent ---- 23 bit mantissa -- Use 
-void printIEE(float f) {
-    uint32_t bits; //copy bytes from argument
-    memcpy(&bits, &f, sizeof(float)); // transform to bits
+    bitset<23> mantissa() {
+        return bitset<23>(bits & 0x7FFFFF);
+    }
 
-    // <<print bitset<x> bits with >> x SR and mask
-    cout << bitset<1>((bits >> 31) & 0x1) << " " <<
-        bitset<8>((bits >> 23) & 0xFF) << " " <<
-        bitset<23>(bits & 0x7FFFFF) << endl;
-}
+    bitset<1> sign() {
+        return bitset<1>((bits >> 31) & 0x1);
+    }
 
+    bitset<8> exponent() {
+        return bitset<8>((bits >> 23) & 0xFF);
+    }
+
+    int expInt() {
+        return (bits >> 23) & 0xFF;
+    }
+
+    void print() {
+        cout << sign() << " " << exponent() << " " << mantissa() << endl;
+    }
+
+    //***Need this to retrieve flaot from bits***
+    float toFloat() {
+        float f;
+        memcpy(&f, &bits, sizeof(float));
+        return f;
+    }
+}; 
 
 
 void findOverflow(float a, float b) {
@@ -59,11 +75,13 @@ void findOverflow(float a, float b) {
     
 
     if ((exp1 - exp2) > 23) {
+        bitsetFP t(threshold);
+
         cout << "Warning: Possible overflow!" << endl;
         cout << "Overflow threshold: " << endl;
         cout << "     " << threshold << endl;
         cout << "     ";
-        printIEE(threshold);
+        t.print();
     }
     else {
         cout << "No overflow!" << endl;
@@ -72,30 +90,39 @@ void findOverflow(float a, float b) {
 
 
 void calcFP(float a, float b) { //Add error for 3 arguments 
-    float x = a; //Loop bound 
-    float y = b; //Increment value of loop counter
+    bitsetFP x(a); //Loop 
+    bitsetFP y(b); //Increment value of loop counter
 
     cout << "Loop bound:   "; 
-    printIEE(x);
+    x.print();
     cout << "Loop counter: ";
-    printIEE(y);
+    y.print();
     cout << endl;
 
-    findOverflow(x, y);
-
+    //need float conversion
+    //findOverflow(x, y);
+    findOverflow(x.toFloat(), y.toFloat());
  
     
 }
 
-int main(){
-    float a;
-    float b;
+int main(int argc, char* argv[]) {
+    //3 arguments not 2 - program name, 2 inputs
+    if (argc != 3) {
+        cout << "Usage:" << argv[0] << " loop_bound loop_counter" << endl;
+        cout << "loop_bound is a positive floating-point value" << endl;
+        cout << "loop_counter is a positive floating-point value" << endl;
+        return 1;
+    }
+
+    float loop_bound = stof(argv[1]);
+    float loop_counter = stof(argv[2]);
     
-    cin >> a; //Don't need any prompt
-    cin >> b;
-    calcFP(a, b);
+    //cin >> a; //Don't need any prompt
+    //cin >> b;
+    calcFP(loop_bound, loop_counter);
 
     return 0;
-};
+}
 
 
